@@ -1,2 +1,2 @@
-# JAX-
+# JAX/
 Group Project
