@@ -1,0 +1,3 @@
+ExpensiveEvent      SellerUser    003 050.00
+EventName01         SellerUser    012 002.00
+RareEvent           SellerUser    001 001.00

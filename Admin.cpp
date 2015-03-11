@@ -27,47 +27,63 @@ Admin::Admin(User u){
 	type = 1;
 }
 
+
+
 //Function: create
 //Creates a new user.
 //Output: int < 0 for error
 //Called By: Transaction
 int Admin::create(vector<User> UsersList){
-	string user, type;
+	string user, typeU;
 	int typeVal;
+	bool matchFound = false;
 	//String typeToFile; //Only used when we actually are going to write to file
-	cout << "What is the new username?\n";
+	cout << "What is the new username?\n\n";
 	cout << "Name: ";
 	cin >> user;
 
-	cout << "What type of account does this user have?\n";
+	for (vector<User>::iterator it = UsersList.begin(); it != UsersList.end(); ++it){
+		if (user == trimName(it->getName())){
+			cout << "User already exits.\n";
+			return -1;
+		}
+	}
+
+	cout << "What type of account does this user have?\n\n";
 	cout << "Type(admin,buy,sell,full): ";
-	cin >> type;
-	if (type == "admin"){
+	cin >> typeU;
+	if (typeU == "admin"){
 		typeVal = 1;
 		//typeToFile = "AA";
 	}
-	else if (type == "buy"){
+	else if (typeU == "buy"){
 		typeVal = 2;
 		//typeToFile = "BS";
 	}
-	else if (type == "sell"){
+	else if (typeU == "sell"){
 		typeVal = 3;
 		//typeToFile = "SS";
 	}
-	else if (type == "full"){
+	else if (typeU == "full"){
 		typeVal = 4;
 		//typeToFile = "FS";
 	}
 
-	UsersList.push_back(User(user, typeVal, 000000000));
+	user.insert(user.size(), 14 - user.size(), ' ');
 
+	UsersList.push_back(User(user, typeVal, 0.0));
+	WriteUsers(UsersList);
 	//Write to TransactionFile
+
+	string ty = to_string(typeVal);
+	string cr = to_string(0.0);
+	ty.insert(0, 1, '0');
+	cr = cr.substr(0, cr.size() - 4);
+	cr.insert(0, 11 - cr.size(), '0');
+	addToTrans("01" + ' ' + user + " " + ty + " " + cr);
+
 	return 0;
 	
-	//Are we supposed to add the user to the User Array?
-	//Doesn't check if user already exists.
-	//Can't handle different answers for types (strings or ints)
-	//Doesn't pad the name
 }
 
 //Function: del
@@ -78,34 +94,62 @@ int Admin::create(vector<User> UsersList){
 int Admin::del(vector<User> UsersList, vector<Event> EventsList){
 	string user; //The variable space where we will store the name of the targeted user
 	bool matchFound = false; //We don't know if the target exists yet.
-	User deleteTarget;
-
-	cout << "Which user are you going to delete?\n";
+	vector<User>::iterator delTarget;
+	vector<Event>::iterator delEvent;
+	int delType = 0;
+	float delCred = 0.0;
+	cout << "Which user are you going to delete?\n\n";
 	cout << "User: ";
 	cin >> user;
 	//Can't delete self
 	if (user == name){
-		cout << "You cannot delete yourself.\n";
+		cout << "You cannot delete yourself.\n\n";
 		return -1;
 	}
 
 	//Finding the user.
 	for (vector<User>::iterator it = UsersList.begin(); it != UsersList.end(); ++it){
-		if (name == trimName(it->getName())){
+		if (user == trimName(it->getName())){
 			matchFound = true;
-			deleteTarget = (*it);
+			delType = it->getType();
+			delCred = it->getCredit();
+			delTarget = it;
 		}
 	}
 	if (matchFound == false){ //Bailing if the user does not exist.
-		cout << "User does not exist";
+		cout << "User does not exist\n";
 		return -1;
 	}
+	UsersList.erase(delTarget);
+	
+	bool noEvents = false;
+	while (noEvents == false){
+		noEvents = true;
+		for (vector<Event>::iterator it = EventsList.begin(); it != EventsList.end(); ++it){
+			if (name == trimName(it->getSeller())){
+				delEvent = it;
+				noEvents = false;
+				break;
+			}
+		}
+		if (noEvents == false){
+			EventsList.erase(delEvent);
+		}
+	}
+	WriteEvent(EventsList);
+	WriteUsers(UsersList);
+	//XX_UUUUUUUUUUUUU_TT_CCCCCCCCC
+	//Create, Delete, addCredit, End of Session
+	//01,02,06,00
+	//TransactionFile << '0' << type << ' ' << name << " " << usertype << ' ' << credit;  
 
-	//Delete all instances of the users tickets from Events.
-	//Delete user from local storage
+	string ty = to_string(delType);
+	string cr = to_string(delCred);
+	ty.insert(0, 1, '0');
+	cr = cr.substr(0, cr.size() - 4);
+	cr.insert(0, 11 - cr.size(), '0');
+	addToTrans("02" + ' ' + user + " " + ty + " " + cr);
 
-	//TransactionFile << '02 ' << user << ' ' << deleteTarget.getType() << ' ' << deleteTarget.getCredit();
-	//Write to file
 
 	//Doesn't delete from local storage, delete their tickets from the events, or write to file
 	return 0;
@@ -124,7 +168,7 @@ int Admin::refund(vector<User> UsersList){
 
 	bool matchFound = false;
 
-	cout << "Which user will be recieving the refund?\n";
+	cout << "Which user will be recieving the refund?\n\n";
 	cout << "User:";
 	cin >> input;
 	//Find the user that is getting the refund
@@ -135,15 +179,15 @@ int Admin::refund(vector<User> UsersList){
 		}
 	}
 	if (matchFound == false){ //Bails if user doesn't exist
-		cout << "That user doesn't exist\n";
+		cout << "That user doesn't exist\n\n";
 		return -1;
 	}
 	if (BuyUser.getType() == 3){ //Bails if that user couldn't buy in the first place
-		cout << "That user doesn't have buy privledges. \n";
+		cout << "That user doesn't have buy privledges. \n\n";
 		return -1;
 }
 
-	cout << "Which user will be refunding the money?\n";
+	cout << "Which user will be refunding the money?\n\n";
 	cout << "User:";
 	cin >> input;
 	//Find the user that is giving the refund
@@ -154,14 +198,14 @@ int Admin::refund(vector<User> UsersList){
 		}
 	}
 	if (matchFound == false){ //Bails if user doesn't exist
-		cout << "That user doesn't exist\n";
+		cout << "That user doesn't exist\n\n";
 		return -1;
 	}
 	if (SellUser.getType() == 2){ //Bails if user doesn't have privilege to sell in the first place
-		cout << "That user doesn't have sell privledges. \n";
+		cout << "That user doesn't have sell privledges. \n\n";
 		return -1;
 	}
-	cout << "How much money is being refunded? \n"; 
+	cout << "How much money is being refunded? \n\n"; 
 	cout << "Amount: ";
 	cin >> amount;
 
@@ -170,9 +214,28 @@ int Admin::refund(vector<User> UsersList){
 		return - 1;
 	}
 
-	BuyUser.addCredit(amount); //Adds money to user
-	SellUser.addCredit(-1*amount); //Subtracts money from other user
+	if (BuyUser.addCredit(amount) < 0){
+		return -1;
+	}//Adds money to user
+	if (SellUser.addCredit(-1 * amount) < 0){
+		BuyUser.addCredit(-1 * amount);
+		return -1;
+	}//Subtracts money from other user
+	
 	//Write to file
+
+	
+	string cr = to_string(amount);
+	cr = cr.substr(0, cr.size() - 4);
+	cr.insert(0, 11 - cr.size(), '0');
+	addToTrans("05" + ' ' + BuyUser.getName() + " " + SellUser.getName() + " " + cr);
+
+	//XX_UUUUUUUUUUUUU_UUUUUUUUUUUUU_CCCCCCCCC
+	//Refund
+	//05
+	//TransactionFile << '0' << type << ' ' << name << " " << name << ' ' << credit;  
+
+
 	return 0;
 }
 
@@ -188,7 +251,7 @@ int Admin::addCredit(vector<User> UsersList){
 
 	bool matchFound = false;
 
-	cout << "Please enter the name of the User to add credit to. \n";
+	cout << "Please enter the name of the User to add credit to. \n\n";
 	cout << "User: ";
 		cin >> input;
 	//Checking to find the user
@@ -199,31 +262,25 @@ int Admin::addCredit(vector<User> UsersList){
 		}
 	}
 	if (matchFound == false){ //Bails if user doesn't exist
-		cout << "That user doesn't exist\n";
+		cout << "That user doesn't exist\n\n";
 		return -1;
 	}
 
 	//Askes for ammount
-	cout << "Please enter the amount. \n";
+	cout << "Please enter the amount. \n\n\n\n";
 	cout << "$:";
 	cin >> amount;
-
-	//If (user)AddCredit checks for inconsistencies, we delete this code=========================
-	if (amount > 1000.00){ //Prevents adding more then the maximum add
-		cout << "Cannot add more than $1000.00/n";
-			return -1;
-	}
-	else if ((userTarget.getCredit() + amount) > 999999.00){
-		cout << "This would exced credit limit of $999,999.00 on this account";
+	
+	//Runs the (user)addCredit
+	if (userTarget.addCredit(amount) < 0){
 		return -1;
 	}
-
-	//==========================================================================================
-	else{
-		//Runs the (user)addCredit
-		userTarget.addCredit(amount);
 		
-		//Write to transaction file
-		return 0;
-	}
+	string ty = to_string(userTarget.getType());
+	string cr = to_string(userTarget.getType());
+	ty.insert(0, 1, '0');
+	cr = cr.substr(0, cr.size() - 4);
+	cr.insert(0, 11 - cr.size(), '0');
+	addToTrans("06" + ' ' + userTarget.getName() + " " + ty + " " + cr);
+	return 0;
 }

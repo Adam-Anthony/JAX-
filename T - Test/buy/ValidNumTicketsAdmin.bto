@@ -1,0 +1,31 @@
+Welcome to the ticket purchasing system!
+
+What kind of transaction would you like to perform?
+Transaction: login
+
+Please enter the your username.
+Username: AdminUser
+
+You have login as AdminUser successfully.
+
+What kind of transaction would you like to perform?
+Transaction: buy
+
+What event would you like to buy tickets for?
+Event Name: EventName01
+
+How many tickets would you like to buy?
+Ticket Amount: 6
+
+Which Seller would you like to buy from?
+Seller Name: SellerUser
+
+That will be $2.00 a ticket, for a total of $12.00. Is that okay?
+Yes/No: Yes
+
+You have successfully purchased your tickets.
+
+What kind of transaction would you like to perform?
+Transaction: logout
+
+You have been logout successfully.

@@ -1,0 +1,28 @@
+Welcome to the ticket purchasing system!
+
+What kind of transaction would you like to perform?
+Transaction: login
+
+Please enter the your username.
+Username: admin
+
+You have logged in successfully.
+
+What kind of transaction would you like to perform?
+Transaction: refund
+
+Specify buyer to refund to.
+Buyer: BuyerUsername
+
+Scpecify seller to refund from.
+Seller: SellerUsername
+
+Enter the amount to refund.
+Amount: 1000
+
+Error. Maximum credit of buyer cannot be exceeded.
+
+What kind of transaction would you like to perform?
+Transaction: logout
+
+You have been successfully logged out.

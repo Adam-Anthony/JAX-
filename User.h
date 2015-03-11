@@ -23,7 +23,6 @@ public:
 	int addCredit(float a);
 	int sell(vector<User> UsersList, vector<Event> EventsList);
 	int buy(vector<User> UsersList, vector<Event> EventsList);
-	
 };
 
 #endif

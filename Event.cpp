@@ -5,7 +5,7 @@ using namespace std;
 //Function: Event
 //Input: String n, float p, int t
 //Called from Transaction
-Event::Event(string n, float p, int t){ //Initializing
+Event::Event(string n,int t, float p){ //Initializing
 	name = n;
 	price = p;
 	tickets = t;
@@ -13,7 +13,7 @@ Event::Event(string n, float p, int t){ //Initializing
 //Function: Event
 //Input: String n, String s, float p, int t
 //Called From Main
-Event::Event(string n, string s, float p, int t){ //Initializing
+Event::Event(string n, string s, int t, float p){ //Initializing
 	name = n;
 	seller = s;
 	price = p;

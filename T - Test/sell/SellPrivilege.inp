@@ -1,0 +1,15 @@
+login
+FakeBuyer
+sell
+FakeEventTitleA
+1.00
+1
+logout
+login
+FakeSeller
+sell
+FakeEventTitleB
+1.00
+1
+logout
+quit

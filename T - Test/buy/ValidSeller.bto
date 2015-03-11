@@ -1,0 +1,28 @@
+Welcome to the ticket purchasing system!
+
+What kind of transaction would you like to perform?
+Transaction: login
+
+Please enter the your username.
+Username: BuyerUser
+
+You have login as BuyerUser successfully.
+
+What kind of transaction would you like to perform?
+Transaction: buy
+
+What event would you like to buy tickets for?
+Event Name: EventName01
+
+How many tickets would you like to buy?
+1
+
+Which Seller would you like to buy from?
+Seller Name: FakeSeller
+
+FakeSeller does not have selling privledges.
+
+Which transaction would you like to perform?
+Transaction: logoff
+
+You have been logout successfully.

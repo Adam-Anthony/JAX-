@@ -34,24 +34,87 @@ float User::getCredit(){
 //Output: int <0 if error
 //Called by Transaction, Admin
 int User::addCredit(float a){
+	if (a > 1000.00){ //Prevents adding more then the maximum add
+		cout << "Cannot add more than $1000.00\n\n";
+		return -1;
+	}
+	else if ((credit + a) > 999999.00){
+		cout << "This would exced credit limit of $999,999.00 on this account\n\n";
+		return -1;
+	}
+	else if((credit + a) < 0){
+		cout << "This would put this user at a negative balance.";
+		return -1;
+	}
 	credit += a;
+
+	//XX_UUUUUUUUUUUUU_TT_CCCCCCCCC
+	//Create, Delete, addCredit, End of Session
+	//01,02,06,00
+	string ty = to_string(type);
+	string cr = to_string(credit);
+	ty.insert(0, 1, '0');
+	cr = cr.substr(0, cr.size() - 4);
+	cr.insert(0, 11 - cr.size(), '0');
+	addToTrans("06" + ' ' + name + " " + ty + " " + cr);
+
 	return 0;
 	//Write to Transaction File
-
-	//Doesn't check if they ammount is too high, too low, or would put user above their credit.
 
 }
 
 //Function: Sell
-//Allows users to add tickets to sell, currently non-functional
+//
 //Output: int <0 for errors
 //Called by: Transaction
 int User::sell(vector<User> UsersList, vector<Event> EventsList){
+	string title;
+	int amount;
+	float price;
+
 	if (type == 2){
 		cout << "You do not have sell privledges." << endl;
+		return -1;
 	}
+	cout << "Enter the name of the event.\n";
+	cin >> title;
+	for (vector<Event>::iterator it = EventsList.begin(); it != EventsList.end(); ++it){
+		if (title == trimName(it->getTitle()) && name == trimName(it->getSeller())){
+			cout << "This event already has tickets from this user.\n";
+			return -1;
+		}
+	}
+
+	cout << "Enter the price per ticket\n";
+	cin >> price;
+	if (price < 0 || price > 999.99){
+		cout << "Error: Tickets must be between 0 and 999.99\n";
+		return -1;
+	}
+	cout << "Enter the number of tickets\n";
+	cin >> amount;
+	if (amount < 1 || amount > 999){
+		cout << "The amount of tickets must be between 1 and 999\n";
+		return -1;
+	}
+	title.insert(title.size(), 19 - title.size(), ' ');
+	EventsList.push_back(Event(title, name, amount, price));
+	WriteEvent(EventsList);
 	return 0;
 	//Write to file
+
+	//XX_EEEEEEEEEEEEEEEEEEEE_SSSSSSSSSSSSS_TTT_PPPPPP
+	//Buy, Sell
+	//03,04
+	//TransactionFile << '0' << type << ' ' << event << ' ' << name << " " << tickets << ' ' << price;  
+
+	string ty = to_string(amount);
+	string cr = to_string(price);
+	ty.insert(0, 3-ty.size(), '0');
+	cr = cr.substr(0, cr.size() - 4);
+	cr.insert(0, 6 - cr.size(), '0');
+	addToTrans("03" + ' ' + title + " " + name + " " + ty + " " + cr);
+
 }
 
 //Function: Buy
@@ -67,7 +130,7 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 	
 	int NumTickets;
 	float pricePerTicket, totalPrice;
-
+	
 	//Make sure that a user isn't a sell only privledge
 	if (type != 3){
 		cout << "Which event would you like to buy for?" << endl;
@@ -85,14 +148,6 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 			return -1;
 		}
 		//===================================================================================
-
-		//Checking that they do not buy more than their account allows them to / finds how many they are buying
-		cout << "How many tickets would you like to buy? \n";
-		cin >> NumTickets;
-		if (NumTickets > buyMax){
-			std::cout << "Standard accounts can only buy a max of 4 tickets at once.\n";
-			return -1;
-		}
 
 		//Askes the sellers name
 		cout << "Which seller would you like to buy from? \n";
@@ -114,11 +169,18 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 			return -1;
 		}
 		//=================================================================================
-
+		//Checking that they do not buy more than their account allows them to / finds how many they are buying
+		cout << "How many tickets would you like to buy? \n";
+		cin >> NumTickets;
+		if (NumTickets > buyMax){
+			std::cout << "Standard accounts can only buy a max of 4 tickets at once.\n";
+			return -1;
+		}
+		//=================================================================================
 		pricePerTicket = currentEvent.getPrice(); //Finds the price for each ticket
 		totalPrice = pricePerTicket * NumTickets; //Calculates the total price the buyer will have to pay
-		cout << "That will be $" << pricePerTicket << "a ticket, for a total ";
-		cout << "of $" << totalPrice << ". Is that okay? \n"; 
+		cout << "That will be $" << pricePerTicket << " a ticket, for a total ";
+		cout << "of $" << totalPrice << ". Is that okay? (y/n)\n"; 
 		cin >> input;
 		if (input != "yes"){
 			if (totalPrice > credit){ //Make sure they have enough money to buy the tickets
@@ -139,9 +201,24 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 				}
 				//write to file, not implemented yet. 
 				//Either writes to file here or at logout, still not sure.
+				WriteEvent(EventsList);
+
+				string ty = to_string(NumTickets);
+				string cr = to_string(totalPrice);
+				ty.insert(0, 3 - ty.size(), '0');
+				cr = cr.substr(0, cr.size() - 4);
+				cr.insert(0, 6 - cr.size(), '0');
+				addToTrans("03" + ' ' + eventTitle + " " + sellerName + " " + ty + " " + cr);
+
+				//XX_EEEEEEEEEEEEEEEEEEEE_SSSSSSSSSSSSS_TTT_PPPPPP
+				//Buy, Sell
+				//03,04
+				//TransactionFile << '0' << type << ' ' << event << ' ' << name << " " << tickets << ' ' << price;
+
 				return 0;
 			}
 		}
 	}
-	return 0;
+
+	return -1;
 }

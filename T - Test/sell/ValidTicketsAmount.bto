@@ -1,0 +1,58 @@
+Welcome to the ticket purchasing system!
+
+What kind of transaction would you like to perform?
+Transaction: login
+
+Please enter the your username.
+Username: FakeSeller
+
+You have login as FakeSeller successfully.
+
+What kind of transaction would you like to perform?
+Transaction: sell
+
+Please enter the name of the new event.
+Event Name: FakeEventTitleG
+
+Please enter the price of the tickets.
+Price: 1.00
+
+Please enter the numbers of available tickets.
+Tickets: -1
+
+Please enter a ticket amount that is between 1 - 1000.
+
+What kind of transaction would you like to perform?
+Transaction: sell
+
+Please enter the name of the new event.
+Event Name: FakeEventTitleH
+
+Please enter the price of the tickets.
+Price: 1.00
+
+Please enter the numbers of available tickets.
+Tickets: 1000
+
+Please enter a ticket amount that is between 1 - 1000.
+
+What kind of transaction would you like to perform?
+Transaction: sell
+
+Please enter the name of the new event.
+Event Name: FakeEventTitleI
+
+Please enter the price of the tickets.
+Price: 1.00
+
+Please enter the numbers of available tickets.
+Tickets: 1
+
+The event FakeEventTitleI has been created successfully.
+FakeEventTitleB will have 1 ticket(s) available.
+FakeEventTitleB will cost 1.00$ for each ticket.
+
+What kind of transaction would you like to perform?
+Transaction: logout
+
+You have been logout successfully.

@@ -1,0 +1,66 @@
+Welcome to the ticket purchasing system!
+
+What kind of transaction would you like to perform?
+Transaction: login
+
+Please enter the your username.
+Username: FakeSeller
+
+You have login as FakeSeller successfully.
+
+What kind of transaction would you like to perform?
+Transaction: sell
+
+Please enter the name of the new event.
+Event Name:
+
+Please enter a valid event name.
+
+What kind of transaction would you like to perform?
+Transaction: 1.00
+
+That is not a valid transaction.
+
+What kind of transaction would you like to perform?
+Transaction: 1
+
+That is not a valid transaction.
+
+What kind of transaction would you like to perform?
+Transaction: sell
+
+Please enter the name of the new event.
+Event Name: TOBEORNOTTOBETHATISTHEQUESTIONTOSLEEPTODIE
+
+Please enter an event name that is shorter than 25 characters.
+
+What kind of transaction would you like to perform?
+Transaction: 1.00
+
+That is not a valid transaction.
+
+What kind of transaction would you like to perform?
+Transaction: 1
+
+That is not a valid transaction.
+
+What kind of transaction would you like to perform?
+Transaction: sell
+
+Please enter the name of the new event.
+Event Name: FakeEventTitleF
+
+Please enter the price of the tickets.
+Price: 1.00
+
+Please enter the numbers of available tickets.
+Tickets: 1
+
+The event FakeEventTitleF has been created successfully.
+FakeEventTitleB will have 1 ticket(s) available.
+FakeEventTitleB will cost 1.00$ for each ticket.
+
+What kind of transaction would you like to perform?
+Transaction: logout
+
+You have been logout successfully.

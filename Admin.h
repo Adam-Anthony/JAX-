@@ -4,7 +4,7 @@
 #include <string>
 using namespace std; 
 
-class Admin : private User
+class Admin : public User
 {
 public:
 	Admin(){ };

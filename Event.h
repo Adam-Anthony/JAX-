@@ -14,8 +14,8 @@ private:
 
 public:
 	Event() { }
-	Event(string n, float p, int t);
-	Event(string n, string s, float p, int t);
+	Event(string n, int t, float p);
+	Event(string n, string s, int t, float p);
 
 	void setSeller(string s);
 	string getTitle();

@@ -1,2 +1,10 @@
-abcdefghijklmn 04 00000000000
-Jim            03 00000000000
+abcdefghijklmn 04 00000000.00
+Jim            03 00000000.00
+admin          01 00000000.00
+BuyerUser      02 00000454.04
+SellerUser     03 00000457.04
+UserName999    04 00000035.00
+UserName998    04 00000034.00
+UserName997    04 00000012.00
+UserName996    04 00000033.40
+END                            
