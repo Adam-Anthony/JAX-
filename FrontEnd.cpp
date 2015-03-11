@@ -81,6 +81,7 @@ void transaction(vector<User> UsersList, vector<Event> EventsList){
 				TransactionFile << "00 " << CurrentUser.getName() << " 0" << CurrentUser.getType() << ' ' << cred << endl;
 				TransactionFile.close(); 
 				cout << "You have successfully logged out. \n";
+				UsersList = UpdateUsers();
 			}
 			//Create
 			else if (input == "create" && isAdmin){

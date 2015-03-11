@@ -123,7 +123,7 @@ int User::sell(vector<User> UsersList, vector<Event> EventsList){
 //Called by: Transaction
 int User::buy(vector<User> UsersList, vector<Event> EventsList){
 	string input, eventTitle, sellerName;
-	Event currentEvent;
+	vector<Event>::iterator currentEvent;
 
 	//Initilized that we have not yet found the event, since we don't even know what we're looking for yet.
 	bool matchFound = false; 
@@ -138,7 +138,7 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 		cin >> input;
 		//Making sure the event exists =====================================================
 		for (vector<Event>::iterator it = EventsList.begin(); it != EventsList.end(); ++it){
-			if ( input != trimName(it->getTitle())){
+			if ( input == trimName(it->getTitle())){
 				matchFound = true;
 				eventTitle = input;
 			}
@@ -156,9 +156,9 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 		//Check that one of the events exists with that seller==============================
 		matchFound = false;
 		for (vector<Event>::iterator it = EventsList.begin(); it != EventsList.end(); ++it){
-			if ( eventTitle != it->getTitle() ){
-				if (input != it->getSeller() ){
-					currentEvent = (*it);
+			if ( eventTitle == trimName(it->getTitle()) ){
+				if (input == trimName(it->getSeller() )){
+					currentEvent = it;
 					matchFound = true;
 					sellerName = input;
 				}
@@ -177,7 +177,7 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 			return -1;
 		}
 		//=================================================================================
-		pricePerTicket = currentEvent.getPrice(); //Finds the price for each ticket
+		pricePerTicket = currentEvent->getPrice(); //Finds the price for each ticket
 		totalPrice = pricePerTicket * NumTickets; //Calculates the total price the buyer will have to pay
 		cout << "That will be $" << pricePerTicket << " a ticket, for a total ";
 		cout << "of $" << totalPrice << ". Is that okay? (y/n)\n"; 
@@ -187,12 +187,12 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 				std::cout << "You do not have enough to buy these tickets. \n";
 				return -1;
 			}
-			else if (NumTickets > currentEvent.getTicket()){ //Make sure there is that many tickets
-				cout << "There are not that many tickets.";
+			else if (NumTickets > currentEvent->getTicket()){ //Make sure there is that many tickets
+				cout << "There are not that many tickets.\n";
 				return -1;
 			}
 			else { //If everything runs fine
-				currentEvent.subtractTicket(NumTickets); //Take away that many tickets
+				currentEvent->subtractTicket(NumTickets); //Take away that many tickets
 				credit -= totalPrice; //Charge the user
 				for (vector<User>::iterator it = UsersList.begin(); it != UsersList.end(); ++it){
 					if (sellerName == trimName(it->getName()) ){
@@ -208,7 +208,7 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 				ty.insert(0, 3 - ty.size(), '0');
 				cr = cr.substr(0, cr.size() - 4);
 				cr.insert(0, 6 - cr.size(), '0');
-				addToTrans("03 " + eventTitle + " " + sellerName + " " + ty + " " + cr);
+				addToTrans("03 " + currentEvent->getTitle() + " " + sellerName.insert(sellerName.size(),14 - sellerName.size(),' ')+ " " + ty + " " + cr);
 
 				//XX_EEEEEEEEEEEEEEEEEEEE_SSSSSSSSSSSSS_TTT_PPPPPP
 				//Buy, Sell
