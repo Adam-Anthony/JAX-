@@ -28,7 +28,6 @@ void transaction(vector<User> UsersList, vector<Event> EventsList){
 	float amount;	//Float amounts in inputs will be stored here
 
 	//File io for the transaction file, writting to transaction file not yet implemented.
-	ofstream TransactionFile("TransactionFile.txt");
 
 	//The loop where the user is asked about performing a transaction
 	while (loopCondition){
@@ -74,8 +73,12 @@ void transaction(vector<User> UsersList, vector<Event> EventsList){
 				
 				//Writes to file. Really broken.
 				//Doesn't put enough spacing for some credit, Doesn't store proper types for users privliges. Doesn't append.
+				ofstream TransactionFile("TransactionFile.txt", ios::app);
 				TransactionFile << getTrans();
-				TransactionFile << "00 " << CurrentUser.getName() << " " << CurrentUser.getType() << ' ' << CurrentUser.getCredit() << endl;
+				string cred = to_string(CurrentUser.getCredit());
+				cred = cred.substr(0, cred.size() - 4);
+				cred.insert(0, 11 - cred.size(), '0');
+				TransactionFile << "00 " << CurrentUser.getName() << " 0" << CurrentUser.getType() << ' ' << cred << endl;
 				TransactionFile.close(); 
 				cout << "You have successfully logged out. \n";
 			}

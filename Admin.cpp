@@ -80,7 +80,7 @@ int Admin::create(vector<User> UsersList){
 	ty.insert(0, 1, '0');
 	cr = cr.substr(0, cr.size() - 4);
 	cr.insert(0, 11 - cr.size(), '0');
-	addToTrans("01" + ' ' + user + " " + ty + " " + cr);
+	addToTrans("01 " + user + " " + ty + " " + cr);
 
 	return 0;
 	
@@ -98,6 +98,7 @@ int Admin::del(vector<User> UsersList, vector<Event> EventsList){
 	vector<Event>::iterator delEvent;
 	int delType = 0;
 	float delCred = 0.0;
+	string delName = "";
 	cout << "Which user are you going to delete?\n\n";
 	cout << "User: ";
 	cin >> user;
@@ -113,6 +114,7 @@ int Admin::del(vector<User> UsersList, vector<Event> EventsList){
 			matchFound = true;
 			delType = it->getType();
 			delCred = it->getCredit();
+			delName = it->getName();
 			delTarget = it;
 		}
 	}
@@ -148,7 +150,7 @@ int Admin::del(vector<User> UsersList, vector<Event> EventsList){
 	ty.insert(0, 1, '0');
 	cr = cr.substr(0, cr.size() - 4);
 	cr.insert(0, 11 - cr.size(), '0');
-	addToTrans("02" + ' ' + user + " " + ty + " " + cr);
+	addToTrans("02 " + delName + " " + ty + " " + cr);
 
 
 	//Doesn't delete from local storage, delete their tickets from the events, or write to file
@@ -168,7 +170,7 @@ int Admin::refund(vector<User> UsersList){
 
 	bool matchFound = false;
 
-	cout << "Which user will be recieving the refund?\n\n";
+	cout << "Which user will be recieving the refund?\n";
 	cout << "User:";
 	cin >> input;
 	//Find the user that is getting the refund
@@ -187,7 +189,7 @@ int Admin::refund(vector<User> UsersList){
 		return -1;
 }
 
-	cout << "Which user will be refunding the money?\n\n";
+	cout << "Which user will be refunding the money?\n";
 	cout << "User:";
 	cin >> input;
 	//Find the user that is giving the refund
@@ -228,7 +230,7 @@ int Admin::refund(vector<User> UsersList){
 	string cr = to_string(amount);
 	cr = cr.substr(0, cr.size() - 4);
 	cr.insert(0, 11 - cr.size(), '0');
-	addToTrans("05" + ' ' + BuyUser.getName() + " " + SellUser.getName() + " " + cr);
+	addToTrans("05 " + BuyUser.getName() + " " + SellUser.getName() + " " + cr);
 
 	//XX_UUUUUUUUUUUUU_UUUUUUUUUUUUU_CCCCCCCCC
 	//Refund
@@ -281,6 +283,6 @@ int Admin::addCredit(vector<User> UsersList){
 	ty.insert(0, 1, '0');
 	cr = cr.substr(0, cr.size() - 4);
 	cr.insert(0, 11 - cr.size(), '0');
-	addToTrans("06" + ' ' + userTarget.getName() + " " + ty + " " + cr);
+	addToTrans("06 " + userTarget.getName() + " " + ty + " " + cr);
 	return 0;
 }

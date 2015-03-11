@@ -81,7 +81,6 @@ vector<Event> UpdateEvents(){
 void WriteUsers(vector<User> u){
 	ofstream userFile;
 	userFile.open("UsersFile.txt");
-	cout << "WOOOP";
 	for (vector<User>::iterator it = u.begin(); it != u.end(); ++it){
 		string type = to_string(it->getType());
 		string cred = to_string(it->getCredit());

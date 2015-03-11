@@ -56,7 +56,7 @@ int User::addCredit(float a){
 	ty.insert(0, 1, '0');
 	cr = cr.substr(0, cr.size() - 4);
 	cr.insert(0, 11 - cr.size(), '0');
-	addToTrans("06" + ' ' + name + " " + ty + " " + cr);
+	addToTrans("06 "+ name + " " + ty + " " + cr);
 
 	return 0;
 	//Write to Transaction File
@@ -113,7 +113,7 @@ int User::sell(vector<User> UsersList, vector<Event> EventsList){
 	ty.insert(0, 3-ty.size(), '0');
 	cr = cr.substr(0, cr.size() - 4);
 	cr.insert(0, 6 - cr.size(), '0');
-	addToTrans("03" + ' ' + title + " " + name + " " + ty + " " + cr);
+	addToTrans("03 " + title + " " + name + " " + ty + " " + cr);
 
 }
 
@@ -208,7 +208,7 @@ int User::buy(vector<User> UsersList, vector<Event> EventsList){
 				ty.insert(0, 3 - ty.size(), '0');
 				cr = cr.substr(0, cr.size() - 4);
 				cr.insert(0, 6 - cr.size(), '0');
-				addToTrans("03" + ' ' + eventTitle + " " + sellerName + " " + ty + " " + cr);
+				addToTrans("03 " + eventTitle + " " + sellerName + " " + ty + " " + cr);
 
 				//XX_EEEEEEEEEEEEEEEEEEEE_SSSSSSSSSSSSS_TTT_PPPPPP
 				//Buy, Sell
