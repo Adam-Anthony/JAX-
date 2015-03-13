@@ -35,15 +35,24 @@ string trimName(string addedSpace){
 vector<User> UpdateUsers(){
 	vector<User> UsersList;
 	string fileData;
+	int type;
 	ifstream AccountsFile("UsersFile.txt");
 	while (getline(AccountsFile, fileData)){
 		if (trimName(fileData.substr(0, 14)) == "END"){
 			break;
 		}
-		if (stoi(fileData.substr(15, 2)) == 1){
+		if (stoi(fileData.substr(15, 2)) == "AA"){
 			UsersList.push_back(Admin(fileData.substr(0, 14), stof(fileData.substr(18, 11))));
 		}
 		else{
+			if(stoi(fileData.substr(15, 2)) == "BS"){
+				type = 02;
+			}
+			else if(stoi(fileData.substr(15,2)) == "SS"){
+				type = 03;
+			}else{
+				type = 04;
+			}
 			UsersList.push_back(User(fileData.substr(0, 14), stoi(fileData.substr(15, 2)), stof(fileData.substr(18, 11))));
 		}
 		//0-12 is username
@@ -80,13 +89,20 @@ vector<Event> UpdateEvents(){
 
 void WriteUsers(vector<User> u){
 	ofstream userFile;
+	string type = "XX";
 	userFile.open("UsersFile.txt");
 	for (vector<User>::iterator it = u.begin(); it != u.end(); ++it){
-		string type = to_string(it->getType());
 		string cred = to_string(it->getCredit());
-		type.insert(0, 1, '0');
 		cred = cred.substr(0, cred.size() - 4);
 		cred.insert(0, 11 - cred.size(), '0');
+		
+		switch(it->getType()){
+			case 1: type = "AA";break;
+			case 2: type = "BS";break;
+			case 3: type = "SS";break;
+			case 4: type = "FS";break;
+		}
+
 		userFile << it->getName() << " " << type << " " << cred << "\n";
 	}
 	userFile << "END                            ";
