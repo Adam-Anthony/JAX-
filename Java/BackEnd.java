@@ -125,6 +125,12 @@ public class BackEnd{
 				
 				line = Transaction.readLine();
 			}
+			
+			Users.close();
+			Events.close();
+			Transaction.close();
+			
+			writeToFile(userData, eventData);
 		} catch (IOException ex){
 			System.out.println("ERROR: IO Exception???? Should never occur!");
 			System.exit(1);
@@ -147,8 +153,142 @@ public class BackEnd{
 	}
 	
 	//Write all the data inside the user and event map to the given file
-	public static int writeToFile(String name, HashMap<String, User> u, HashMap<String, Event> e){
-		return 1;
+	public static int writeToFile(HashMap<String, User> u, HashMap<String, Event> e){
+		User[] userList = u.values().toArray(new User[0]);
+		Event[] eventList = e.values().toArray(new Event[0]);
+		int userSize = userList.length;
+		int eventSize = eventList.length;
+		int tempSize;
+		String tempStr;
+		char[] strBuff;
+		BufferedWriter Users;
+		BufferedWriter Events;
+		BufferedWriter Transaction;
+		
+		try{
+			Users = new BufferedWriter(new FileWriter(UsersFile));
+			Events = new BufferedWriter(new FileWriter(EventsFile));
+			Transaction = new BufferedWriter(new FileWriter(TransactionFile));
+		
+			//Handling outputting to the user data file
+			for(int i = 0; i < userSize; i++){
+				strBuff = new char[29];
+				tempStr = userList[i].getName();
+				tempSize = tempStr.length();
+				
+				//Starting with the username
+				for(int j = 0; j < tempSize; j++){
+					strBuff[j] = tempStr.charAt(j);
+				}
+				
+				//Then empty space for padding
+				for(int j = tempSize; j < 15; j++){
+					strBuff[j] = ' ';
+				}
+				
+				//Then spaces and the type follow by the space
+				strBuff[15] = ' ';
+				tempStr = userList[i].getType();
+				strBuff[16] = tempStr.charAt(0);
+				strBuff[17] = tempStr.charAt(1);
+				strBuff[18] = ' ';
+				
+				tempStr = userList[i].getCredit() + "";
+
+				//Then the 0 padding for the numerals
+				for(int j = 27 - tempStr.length(); j > 18; j--){
+					strBuff[j] = '0';
+				}
+				
+				//Finally the actual numbers itself
+				for(int j = 28 - tempStr.length(); j < 28; j++){
+					strBuff[j] = tempStr.charAt(j);
+				}
+				
+				strBuff[28] = '\n';
+				
+				Users.write(strBuff, 0, 29);
+			}
+			Users.close();
+			
+			//Handling outputting to the event data file
+			for(int i = 0; i < eventSize; i++){
+				strBuff = new char[46];
+				tempStr = eventList[i].getTitle();
+				tempSize = tempStr.length();
+				
+				//Starting with the event title
+				for(int j = 0; j < tempSize; j++){
+					strBuff[j] = tempStr.charAt(j);
+				}
+				
+				//Then empty space for padding
+				for(int j = tempSize; j < 19; j++){
+					strBuff[j] = ' ';
+				}
+				
+				//Then another space for separation
+				strBuff[19] = ' ';
+				tempStr = eventList[i].getSeller();
+				tempSize = tempStr.length();
+				
+				//Then the username of the seller
+				for(int j = 0; j < tempSize; j++){
+					strBuff[j+20] = tempStr.charAt(j);
+				}
+				
+				//Then more space for padding
+				for(int j = tempSize; j < 13; j++){
+					strBuff[j+20] = ' ';
+				}
+				
+				//Then another space for separation
+				strBuff[33] = ' ';
+				tempStr = eventList[i].getAmount() + "";
+				tempSize = tempStr.length();
+				
+				//Then the amount of the tickets available
+				if(tempSize > 2){
+					strBuff[34] = tempStr.charAt(0);
+					strBuff[35] = tempStr.charAt(1);
+					strBuff[36] = tempStr.charAt(2);
+				} else if(tempSize > 1) {
+					strBuff[34] = ' ';
+					strBuff[35] = tempStr.charAt(0);
+					strBuff[36] = tempStr.charAt(1);
+				} else {
+					strBuff[34] = ' ';
+					strBuff[35] = ' ';
+					strBuff[36] = tempStr.charAt(0);
+				}
+				
+				tempStr = eventList[i].getPrice() + "";
+
+				//Then the 0 padding for the price
+				for(int j = 43 - tempStr.length(); j > 36; j--){
+					strBuff[j] = '0';
+				}
+				
+				//Finally the actual price itself
+				for(int j = 44 - tempStr.length(); j < 44; j++){
+					strBuff[j] = tempStr.charAt(j);
+				}
+				
+				strBuff[44] = '\n';
+				
+				Events.write(strBuff, 0, 45);
+			}
+			Events.close();
+			
+			//Empty the transaction file
+			Transaction.write("", 0, 0);
+			Transaction.close();
+			
+			return 1;
+		} catch (IOException ee) {
+			System.out.println("ERROR: Permission error probably, idk.");
+			return 0;
+		}
 	}
 }
 
