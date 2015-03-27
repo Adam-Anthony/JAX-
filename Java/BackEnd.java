@@ -17,44 +17,32 @@ public class BackEnd{
 	static final String UsersFile = "UsersFile.txt";
 	static final String EventsFile = "EventsFile.txt";
 	static final String TransactionFile = "TransactionFile.txt";
+	static BufferedReader Users;
+	static BufferedReader Events;
+	static BufferedReader Transaction;
 
 	public static void main(String[] Argv){
-		BufferedReader Users = readFromFile(UsersFile);
-		BufferedReader Events = readFromFile(EventsFile);
-		BufferedReader Transaction = readFromFile(TransactionFile);
 		HashMap<String, User> userData = new HashMap<String, User>();
 		HashMap<String, Event> eventData = new HashMap<String, Event>();
-		String line, name;
+		
+		readFromFile();
+		readData(userData, eventData);
+		applyTransaction(userData, eventData);
+		writeToFile(userData, eventData);
+	}
+	
+	//Responsible for reading each transaction and applying it to the user and event data
+	//Require reference to both user and event hashmap as argument to modify
+	//Returns 0 if successful, -1 if failed.
+	public static int applyTransaction(HashMap<String, User> uData, HashMap<String, Event> eData){
+		String line;
+		String name;
+		float value;
+		int transType;
 		User u;
 		Event e;
-		int amount;
-		int transType;
-		float value;
 		
 		try{
-			//Gets all the user data from the file and put it in the hash map one line at a time
-			line = Users.readLine();
-			while(line != null){
-				name = line.substring(0, 15).trim();
-				value = Float.parseFloat(line.substring(19,28));
-				u = new User(name, line.substring(16, 18), value);
-				
-				userData.put(name, u);
-				line = Users.readLine();
-			}
-			
-			//Gets all the event data from the file and put it in a hash map
-			line = Events.readLine();
-			while(line != null){
-				name = line.substring(0, 19).trim();
-				amount = Integer.parseInt(line.substring(34, 37));
-				value = Float.parseFloat(line.substring(38,44));
-				e = new Event(name, line.substring(20, 33).trim(), amount, value);
-				
-				eventData.put(name, e);
-				line = Events.readLine();
-			}
-			
 			//Gets each transaction one at a time and apply the change to the user or event database
 			line = Transaction.readLine();
 			while(line != null){
@@ -63,16 +51,16 @@ public class BackEnd{
 				if(transType == 1){ //Creating an account
 					name = line.substring(3, 18).trim();
 					
-					if(userData.get(name) != null){
+					if(uData.get(name) != null){
 						System.out.println("ERROR: The user " + name + " already exist in the database.");
 					} else {
 						value = Float.parseFloat(line.substring(22, 31));
 						u = new User(name, line.substring(19,21), value);						
-						userData.put(name, u);
+						uData.put(name, u);
 					}
 				} else if(transType == 2){	//Deleting an account
 					name = line.substring(3, 18).trim();
-					u = userData.remove(name);
+					u = uData.remove(name);
 					
 					if(u == null){
 						System.out.println("ERROR: The user " + name + " cannot be removed because it no longer exist.");
@@ -85,74 +73,127 @@ public class BackEnd{
 					value = Float.parseFloat(line.substring(35, 44));
 					
 					name = line.substring(3, 18).trim();
-					u = userData.remove(name);
+					u = uData.remove(name);
 					
 					if(u == null){
 						System.out.println("ERROR: The user " + name + " cannot be refunded because it no longer exist.");
 						//No point in subtracting the fund from seller if the buyer no longer exist
 					} else {
 						u.setCredit(u.getCredit() + value);
-						userData.put(name, u);
+						uData.put(name, u);
 						
 						name = line.substring(19, 34).trim();
-						u = userData.remove(name);
+						u = uData.remove(name);
 						
 						if(u == null){
 							System.out.println("ERROR: The user " + name + " cannot be initiate the refund because it no longer exist.");
 							
 							//If the seller is gone, we can't just give buyer free money
 							name = line.substring(3, 18).trim();
-							u = userData.remove(name);
+							u = uData.remove(name);
 							u.setCredit(u.getCredit() - value);
-							userData.put(name, u);
+							uData.put(name, u);
 						} else {
 							u.setCredit(u.getCredit() - value);
-							userData.put(name, u);
+							uData.put(name, u);
 						}
 					}
 				} else if(transType == 6){	//Add credit to an account
 					name = line.substring(3, 18).trim();
 					value = Float.parseFloat(line.substring(22, 31));
-					u = userData.remove(name);
+					u = uData.remove(name);
 					
 					if(u == null){
 						System.out.println("ERROR: Credit cannot be added to the user " + name + " because it no longer exist.");
 					} else {
 						u.setCredit(u.getCredit() + value);
-						userData.put(name, u);
+						uData.put(name, u);
 					}
 				}
 				
 				line = Transaction.readLine();
 			}
 			
-			Users.close();
-			Events.close();
 			Transaction.close();
-			
-			writeToFile(userData, eventData);
+
+			return 0;
 		} catch (IOException ex){
 			System.out.println("ERROR: IO Exception???? Should never occur!");
-			System.exit(1);
+			return -1;
 		} catch (NullPointerException exp){
-			System.out.println("ERROR: Null pointer?????Should never occur!");
-			System.exit(1);
+			System.out.println("ERROR: Null pointer? Looks like you forgot to read from files.");
+			return -1;
 		}
 	}
 	
-	//Read a file name and provided a buffered reader for the file
-	//Also handle error relating to file not being found
-	public static BufferedReader readFromFile(String name){
+	//Responsible for reading in the data from the readers and putting it on the hashmap
+	//Require reference to both user and event hashmap as argument to write into
+	//Returns 0 if successful, -1 if failed.
+	public static int readData(HashMap<String, User> uData, HashMap<String, Event> eData){
+		String name;
+		String line;
+		float value;
+		int amount;
+		User u;
+		Event e;
+		
 		try{
-			BufferedReader br = new BufferedReader(new FileReader(name));
-			return br;
-		} catch (FileNotFoundException e){
-			System.out.println("ERROR: File " + name + " not found!");
-			return null;
+			//Gets all the user data from the file and put it in the hash map one line at a time
+			line = Users.readLine();
+			while(line != null){
+				name = line.substring(0, 15).trim();
+				value = Float.parseFloat(line.substring(19,28));
+				u = new User(name, line.substring(16, 18), value);
+				
+				uData.put(name, u);
+				line = Users.readLine();
+			}
+			
+			//Gets all the event data from the file and put it in a hash map
+			line = Events.readLine();
+			while(line != null){
+				name = line.substring(0, 19).trim();
+				amount = Integer.parseInt(line.substring(34, 37));
+				value = Float.parseFloat(line.substring(38,44));
+				e = new Event(name, line.substring(20, 33).trim(), amount, value);
+				
+				eData.put(name, e);
+				line = Events.readLine();
+			}
+			
+			Users.close();
+			Events.close();
+			
+			return 0;
+		} catch (IOException ex){
+			System.out.println("ERROR: IO Exception???? Should never occur!");
+			return -1;
+		} catch (NullPointerException exp){
+			System.out.println("ERROR: Null pointer? Looks like you forgot to read from files.");
+			return -1;
 		}
 	}
 	
-	//Write all the data inside the user and event map to the given file
+	//Read the filename as global variables and create a new reader for it
+	//Readers are global, so there is no need to return them
+	//Returns 0 if successful, -1 if failed.
+	public static int readFromFile(){
+		try{
+			Users = new BufferedReader(new FileReader(UsersFile));
+			Events = new BufferedReader(new FileReader(EventsFile));
+			Transaction = new BufferedReader(new FileReader(TransactionFile));
+			
+			return 0;
+		} catch (FileNotFoundException e){
+			System.out.println("ERROR: Files are not found!");
+			return -1;
+		}
+	}
+	
+	//Write all the data inside the given hashmap into the files
+	//Files are provided as global variables
+	//Hashmap for user and event data are require as argument for reading
+	//Returns 0 is successful, -1 if failed.
 	public static int writeToFile(HashMap<String, User> u, HashMap<String, Event> e){
 		User[] userList = u.values().toArray(new User[0]);
 		Event[] eventList = e.values().toArray(new Event[0]);
@@ -163,12 +204,10 @@ public class BackEnd{
 		char[] strBuff;
 		BufferedWriter Users;
 		BufferedWriter Events;
-		BufferedWriter Transaction;
 		
 		try{
 			Users = new BufferedWriter(new FileWriter(UsersFile));
 			Events = new BufferedWriter(new FileWriter(EventsFile));
-			Transaction = new BufferedWriter(new FileWriter(TransactionFile));
 		
 			//Handling outputting to the user data file
 			for(int i = 0; i < userSize; i++){
@@ -280,14 +319,10 @@ public class BackEnd{
 			}
 			Events.close();
 			
-			//Empty the transaction file
-			Transaction.write("", 0, 0);
-			Transaction.close();
-			
-			return 1;
+			return 0;
 		} catch (IOException ee) {
 			System.out.println("ERROR: Permission error probably, idk.");
-			return 0;
+			return -1;
 		}
 	}
 }
