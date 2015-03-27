@@ -41,19 +41,19 @@ vector<User> UpdateUsers(){
 		if (trimName(fileData.substr(0, 14)) == "END"){
 			break;
 		}
-		if (stoi(fileData.substr(15, 2)) == "AA"){
+		if (fileData.substr(15, 2) == "AA"){
 			UsersList.push_back(Admin(fileData.substr(0, 14), stof(fileData.substr(18, 11))));
 		}
 		else{
-			if(stoi(fileData.substr(15, 2)) == "BS"){
+			if(fileData.substr(15, 2) == "BS"){
 				type = 02;
 			}
-			else if(stoi(fileData.substr(15,2)) == "SS"){
+			else if(fileData.substr(15,2) == "SS"){
 				type = 03;
 			}else{
 				type = 04;
 			}
-			UsersList.push_back(User(fileData.substr(0, 14), stoi(fileData.substr(15, 2)), stof(fileData.substr(18, 11))));
+			UsersList.push_back(User(fileData.substr(0, 14), type, stof(fileData.substr(18, 11))));
 		}
 		//0-12 is username
 		//14-15 is the type
