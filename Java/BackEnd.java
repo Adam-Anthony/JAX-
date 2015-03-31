@@ -39,6 +39,7 @@ public class BackEnd{
 		String name;
 		float value;
 		int transType;
+		int amount;
 		User u;
 		Event e;
 		
@@ -55,6 +56,12 @@ public class BackEnd{
 						System.out.println("ERROR: The user " + name + " already exist in the database.");
 					} else {
 						value = Float.parseFloat(line.substring(22, 31));
+						
+						if(value > 999999){
+							System.out.println("ERROR: User " + name + " maximum credit cannot be greater than $999,999.");
+							continue;
+						}
+						
 						u = new User(name, line.substring(19,21), value);						
 						uData.put(name, u);
 					}
@@ -66,9 +73,73 @@ public class BackEnd{
 						System.out.println("ERROR: The user " + name + " cannot be removed because it no longer exist.");
 					}
 				} else if(transType == 3){	//Selling tickets for new event
-				
+					name = line.substring(3, 22).trim();
+					e = eData.get(name);
+					if(e != null){
+						System.out.println("ERROR: Event " + name + " already existed.");
+						continue;
+					}
+					
+					String seller = line.substring(23, 36).trim();
+					if(uData.get(seller) == null){
+						System.out.	println("ERROR: Seller " + seller + " does not exist, event not registered.");
+						continue;
+					}
+					
+					amount = Integer.parseInt(line.substring(37, 40));
+					if(amount > 100){
+						System.out.println("ERROR: Event " + name + " cannot have more than 100 tickets for sale.");
+						continue;
+					}
+					
+					value = Float.parseFloat(line.substring(41, 47));
+					if(value > 999.99){
+						System.out.println("ERROR: Event " + name + " cannot have price greater than $999.99.");
+						continue;
+					}
+					
+					e = new Event(name, seller, amount, value);
+					
+					eData.put(name, e);
 				} else if(transType == 4){	//Buying from an event
-				
+					String buyer = line.substring(23, 36).trim();
+					u = uData.get(buyer);
+					if(u == null){
+						System.out.println("ERROR: Buyer " + buyer + " does not exist, sale cancelled.");
+						continue;
+					}
+					
+					name = line.substring(3, 22).trim();
+					e = eData.get(name);
+					if(e == null){
+						System.out.println("ERROR: Event " + name + "does not exist, sale cancelled.");
+						continue;
+					}
+					
+					amount = Integer.parseInt(line.substring(37, 40));
+					if(amount > e.getAmount()){
+						System.out.println("ERROR: Event " + name + " do not have " + amount + " of tickets for sale.");
+						continue;
+					}
+					
+					if(amount > 4){
+						System.out.println("ERROR: User " + buyer + " cannot buy more then 4 tickets at once.");
+						continue;
+					}
+					
+					if(amount * e.getPrice() > u.getCredit()){
+						System.out.println("ERROR: User " + buyer + " lack the fund to buy tickets from " + name + ".");
+						continue;
+					}
+					
+					u = uData.remove(buyer);
+					e = eData.remove(name);
+					
+					e.setAmount(e.getAmount() - amount);
+					u.setCredit(u.getCredit() - (e.getPrice() * amount));
+					
+					uData.put(buyer, u);
+					eData.put(name, e);
 				} else if(transType == 5){	//Refund from seller to buyer
 					value = Float.parseFloat(line.substring(35, 44));
 					
@@ -100,12 +171,24 @@ public class BackEnd{
 					}
 				} else if(transType == 6){	//Add credit to an account
 					name = line.substring(3, 18).trim();
-					value = Float.parseFloat(line.substring(22, 31));
-					u = uData.remove(name);
+					u = uData.get(name);
 					
 					if(u == null){
 						System.out.println("ERROR: Credit cannot be added to the user " + name + " because it no longer exist.");
 					} else {
+						value = Float.parseFloat(line.substring(22, 31));
+						
+						if(value > 1000){
+							System.out.println("ERROR: User " + name + " cannot add more than $1000 in a single transaction.");
+							continue;
+						}
+						
+						if(value + u.getCredit() > 999999){
+							System.out.println("ERROR: User " + name + " cannot add anymore credit due to reaching account limit.");
+							continue;
+						}
+						
+						u = uData.remove(name);
 						u.setCredit(u.getCredit() + value);
 						uData.put(name, u);
 					}
